@@ -49,10 +49,10 @@ spi_init(void)
 {
   /* Initalize ports for communication with SPI units. */
   /* CSN=SS and must be output when master! */
-  DDRB  |= BV(MOSI) | BV(SCK) | BV(CSN);
+  DDRB  |= BV(MOSI) | BV(SCK) | BV(CSN)|BV(FLASH_CS);
   PORTB |= BV(MOSI) | BV(SCK);
 
   /* Enables SPI, selects "master", clock rate FCK / 2, and SPI mode 0 */
-  SPCR = BV(SPE) | BV(MSTR);
-  SPSR = BV(SPI2X);
+  SPCR = BV(SPE) | BV(MSTR) | BV(SPR0);
+ SPSR = BV(SPI2X);
 }

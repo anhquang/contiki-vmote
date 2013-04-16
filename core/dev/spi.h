@@ -60,9 +60,9 @@ void spi_init(void);
 #define SPI_WRITE(data)                         \
   do {                                          \
     SPI_WAITFORTx_BEFORE();                     \
-    SPI_TXBUF = data;                           \
-    SPI_WAITFOREOTx();                          \
-  } while(0)
+    SPI_TXBUF = data; 	                        \
+    SPI_WAITFOREOTx();			\
+       } while(0)
 
 /* Write one character to SPI - will not wait for end
    useful for multiple writes with wait after final */
@@ -77,7 +77,7 @@ void spi_init(void);
 #define SPI_READ(data)   \
   do {                   \
     SPI_TXBUF = 0;       \
-    SPI_WAITFOREORx();   \
+   SPI_WAITFOREORx();	   \
     data = SPI_RXBUF;    \
   } while(0)
 

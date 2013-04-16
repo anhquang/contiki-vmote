@@ -47,6 +47,8 @@ ifdef COFFEE_FILES                #if files are defined force definition of COFF
    COFFEE_ADDRESS=0x14000
   else ifeq ($(COFFEE_FILES), 4)  #4=program flash dynamic
    COFFEE_ADDRESS=0x10000
+  else ifeq ($(COFFEE_FILES), 5)  #4=program external flash dynamic
+   COFFEE_ADDRESS=0x00000
   else
    print "Unsupported coffee file type!"
   endif
@@ -193,16 +195,16 @@ endif
 ### Upload image
 #Let avrdude use defaults if port or programmer not defined
 ifdef AVRDUDE_PORT
- AVRDUDE_PORT:=-P $(AVRDUDE_PORT)
+ AVRDUDE_PORT:= $(AVRDUDE_PORT)
 endif
 ifdef AVRDUDE_PROGRAMMER
  AVRDUDE_PROGRAMMER:=-c $(AVRDUDE_PROGRAMMER)
 endif
 %.u: %.hex
-	avrdude $(AVRDUDE_OPTIONS) $(AVRDUDE_PORT) $(AVRDUDE_PROGRAMMER) -p $(MCU) -U flash:w:$<
+	avrdude $(AVRDUDE_OPTIONS) -P $(AVRDUDE_PORT) $(AVRDUDE_PROGRAMMER) -p $(MCU) -U flash:w:$<
 
 %.eu: %.eep
-	avrdude ${AVRDUDE_OPTIONS} ${AVRDUDE_PORT} ${AVRDUDE_PROGRAMMER} -p ${MCU} -U eeprom:w:$<
+	avrdude ${AVRDUDE_OPTIONS} -P ${AVRDUDE_PORT} ${AVRDUDE_PROGRAMMER} -p ${MCU} -U eeprom:w:$<
 
 symbols.c:
 	cp ${CONTIKI}/tools/empty-symbols.c symbols.c

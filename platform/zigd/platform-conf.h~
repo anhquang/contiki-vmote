@@ -1,0 +1,44 @@
+/* 
+ *configure vmote platform for coffee fs
+ *\author
+ * Pham Tran Anh Quang <ptaquang@iuh.edu.vn>
+*/
+
+#ifndef __PLATFORM_CONF_H__
+#define __PLATFORM_CONF_H__
+
+#define EEPROMFS_ADDR_CODEPROP 0x8000
+
+#define EEPROM_NODE_ID_START 0x00
+/* SPI input/output registers. */
+#define SPI_TXBUF SPDR
+#define SPI_RXBUF SPDR
+
+#define BV(bitno) _BV(bitno)
+
+#define SPI_WAITFOREOTx() do { while (!(SPSR & BV(SPIF))); } while (0)
+#define SPI_WAITFOREORx() do { while (!(SPSR & BV(SPIF))); } while (0)
+
+#define SCK            1  /* - Output: SPI Serial Clock (SCLK) - ATMEGA128 PORTB, PIN1 */
+#define MOSI           2  /* - Output: SPI Master out - slave in (MOSI) - ATMEGA128 PORTB, PIN2 */
+#define MISO           3  /* - Input:  SPI Master in - slave out (MISO) - ATMEGA128 PORTB, PIN3 */
+
+/*
+ * SPI bus - M25P80 external flash configuration.
+ */
+
+#define FLASH_PWR       3       /* P4.3 Output */
+#define FLASH_CS        4       /* P4.4 Output */
+#define FLASH_HOLD      7       /* P4.7 Output */
+
+/* Enable/disable flash access to the SPI bus (active low). */
+
+#define SPI_FLASH_ENABLE()  ( P4OUT &= ~BV(FLASH_CS) )
+#define SPI_FLASH_DISABLE() ( P4OUT |=  BV(FLASH_CS) )
+
+#define SPI_FLASH_HOLD()                ( P4OUT &= ~BV(FLASH_HOLD) )
+#define SPI_FLASH_UNHOLD()              ( P4OUT |=  BV(FLASH_HOLD) )
+
+/*
+ * SPI bus - CC2420 pin configuration.
+ */

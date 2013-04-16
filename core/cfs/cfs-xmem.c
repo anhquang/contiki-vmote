@@ -61,7 +61,7 @@ static struct filestate file;
 /*---------------------------------------------------------------------------*/
 int
 cfs_open(const char *n, int f)
-{
+{ 
   if(file.flag == FLAG_FILE_CLOSED) {
     file.flag = FLAG_FILE_OPEN;
     if(f & CFS_READ) {

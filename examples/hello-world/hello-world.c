@@ -38,8 +38,9 @@
  */
 
 #include "contiki.h"
-
+#include "dev/leds.h"
 #include <stdio.h> /* For printf() */
+
 /*---------------------------------------------------------------------------*/
 PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
@@ -47,7 +48,19 @@ AUTOSTART_PROCESSES(&hello_world_process);
 PROCESS_THREAD(hello_world_process, ev, data)
 {
   PROCESS_BEGIN();
-
+  
+  
+  /* Set MOSI and SCK output, all others input */
+DDRB = (1<<MOSI)|(1<<SCK);
+/* Enable SPI, Master, set clock rate fck/16 */
+SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
+	/* Start transmission */
+SPDR = 0x06;
+/* Wait for transmission complete */
+while(!(SPSR & (1<<SPIF)));
+ 
+DDRD |= _BV(5) | _BV(6);
+  PORTD |= _BV(5)|_BV(6);
   printf("Hello, world\n");
   
   PROCESS_END();

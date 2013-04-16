@@ -38,6 +38,7 @@
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #else
+#ifndef uint8_t
 typedef unsigned char   uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned long  uint32_t;
@@ -45,7 +46,7 @@ typedef   signed char    int8_t;
 typedef          short  int16_t;
 typedef          long   int32_t;
 #endif /* !HAVE_STDINT_H */
-
+#endif
 /* These names are deprecated, use C99 names. */
 typedef  uint8_t    u8_t;
 typedef uint16_t   u16_t;

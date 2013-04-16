@@ -154,6 +154,8 @@
 #define COFFEE_PAGES_PER_SECTOR	\
 	((coffee_page_t)(COFFEE_SECTOR_SIZE / COFFEE_PAGE_SIZE))
 
+#define DEBUG DEBUG_PRINT
+#include "net/uip-debug.h"
 /* This structure is used for garbage collection statistics. */
 struct sector_status {
   coffee_page_t active;
@@ -223,12 +225,14 @@ write_header(struct file_header *hdr, coffee_page_t page)
 {
   hdr->flags |= HDR_FLAG_VALID;
   COFFEE_WRITE(hdr, sizeof(*hdr), page * COFFEE_PAGE_SIZE);
+
 }
 /*---------------------------------------------------------------------------*/
 static void
 read_header(struct file_header *hdr, coffee_page_t page)
 {
   COFFEE_READ(hdr, sizeof(*hdr), page * COFFEE_PAGE_SIZE);
+
 #if DEBUG
   if(HDR_ACTIVE(*hdr) && !HDR_VALID(*hdr)) {
     PRINTF("Invalid header at page %u!\n", (unsigned)page);
@@ -480,22 +484,26 @@ find_file(const char *name)
   for(i = 0; i < COFFEE_MAX_OPEN_FILES; i++) {
     if(FILE_FREE(&coffee_files[i])) {
       continue;
+
     }
 
     read_header(&hdr, coffee_files[i].page);
     if(HDR_ACTIVE(hdr) && !HDR_LOG(hdr) && strcmp(name, hdr.name) == 0) {
+PRINTF (" file metadata is cached\n");
       return &coffee_files[i];
     }
   }
-  
+
   /* Scan the flash memory sequentially otherwise. */
   for(page = 0; page < COFFEE_PAGE_COUNT; page = next_file(page, &hdr)) {
     read_header(&hdr, page);
     if(HDR_ACTIVE(hdr) && !HDR_LOG(hdr) && strcmp(name, hdr.name) == 0) {
-      return load_file(page, &hdr);
+PRINTF ("Scan the flash memory sequentially otherwise.\n");
+        return load_file(page, &hdr);
+
     }
   }
-
+  
   return NULL;
 }
 /*---------------------------------------------------------------------------*/
@@ -559,6 +567,7 @@ find_contiguous_pages(coffee_page_t amount)
         if(start == *next_free) {
 	  *next_free = start + amount;
 	}
+
 	return start;
       }
     } else {
@@ -566,6 +575,7 @@ find_contiguous_pages(coffee_page_t amount)
       page = next_file(page, &hdr);
     }
   }
+
   return INVALID_PAGE;
 }
 /*---------------------------------------------------------------------------*/
@@ -642,6 +652,7 @@ reserve(const char *name, coffee_page_t pages,
     if(*gc_wait) {
       return NULL;
     }
+
     collect_garbage(GC_GREEDY);
     page = find_contiguous_pages(pages);
     if(page == INVALID_PAGE) {
@@ -662,6 +673,7 @@ reserve(const char *name, coffee_page_t pages,
   file = load_file(page, &hdr);
   if(file != NULL) {
     file->end = 0;
+
   }
 
   return file;
@@ -997,25 +1009,34 @@ cfs_open(const char *name, int flags)
 {
   int fd;
   struct file_desc *fdp;
-
+ 
   fd = get_available_fd();
   if(fd < 0) {
     PRINTF("Coffee: Failed to allocate a new file descriptor!\n");
+
     return -1;
+
   }
+
 
   fdp = &coffee_fd_set[fd];
   fdp->flags = 0;
 
-  fdp->file = find_file(name);
+  fdp->file = find_file(name); /*problem*/
   if(fdp->file == NULL) {
+
     if((flags & (CFS_READ | CFS_WRITE)) == CFS_READ) {
+
       return -1;
+
     }
+
     fdp->file = reserve(name, page_count(COFFEE_DYN_SIZE), 1, 0);
     if(fdp->file == NULL) {
+
       return -1;
     }
+
     fdp->file->end = 0;
   } else if(fdp->file->end == UNKNOWN_OFFSET) {
     fdp->file->end = file_end(fdp->file->page);
